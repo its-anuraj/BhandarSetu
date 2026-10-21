@@ -1,4 +1,4 @@
-# AnajBahi (अनाज बही)
+# BhandarSetu — भंडारसेतु
 ## Smart Commodity Inventory & Deterministic FIFO Management System
 
 > **“Har batch ka hisaab, har dispatch ka record.”**
@@ -8,7 +8,7 @@
 
 ## 🌾 Overview
 
-**AnajBahi (अनाज बही)** is an integrated, production-minded commodity inventory management web application tailored for public and state-level foodgrain warehousing (e.g., Food & Civil Supplies, State Warehousing Corporations, and FCI-linked depots).
+**BhandarSetu — भंडारसेतु** is an integrated, production-minded commodity inventory management web application tailored for public and state-level foodgrain warehousing (e.g., Food & Civil Supplies, State Warehousing Corporations, and FCI-linked depots).
 
 Designed to enforce **Departmental FIFO Rule 14-B** and **NFSA Section 12(2)**, the system replaces prone-to-error manual registers with automated, tamper-evident inventory tracking, quality hold restrictions, weighbridge gross/tare reconciliation, and cryptographic delivery challans.
 
@@ -199,4 +199,4 @@ BhandaarSetu/
 
 ## 📜 Compliance & Legal Disclaimer
 
-*AnajBahi (अनाज बही)* is an independent software prototype developed for hackathon demonstration, designed in accordance with published Public Distribution System (PDS) operational guidelines, National Food Security Act (NFSA) Section 12(2), and Warehousing Development and Regulatory Authority (WDRA) best practices. It does not represent an official government portal.
+*BhandarSetu — भंडारसेतु* is an independent software prototype developed for hackathon demonstration, designed in accordance with published Public Distribution System (PDS) operational guidelines, National Food Security Act (NFSA) Section 12(2), and Warehousing Development and Regulatory Authority (WDRA) best practices. It does not represent an official government portal.
