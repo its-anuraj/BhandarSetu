@@ -1,0 +1,16 @@
+{
+  "short_name": "AnajBahi",
+  "name": "AnajBahi — अनाज बही | Smart Commodity Inventory & FIFO Management",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "64x64 128x128 256x256 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#f3fbf5",
+  "theme_color": "#214e3d",
+  "display": "standalone",
+  "orientation": "any"
+}
