@@ -1,4 +1,4 @@
-# SmartStock iPDS — Product Requirements & Architectural Specification
+# BhandarSetu (भंडारसेतु) — Product Requirements & Architectural Specification
 **Document Version:** 1.0.0-PROTOTYPE-PLAN  
 **Status:** Read-Only Research, Product Planning & System Architecture Specification (Phase 0)  
 **Target Milestone:** Hackathon-Ready Functional Prototype & Production-Grade Architectural Foundation  
@@ -24,7 +24,7 @@
 13. [Product Navigation and Complete Page Inventory](#13-product-navigation-and-complete-page-inventory)
 14. [Major Functional Modules (P0)](#14-major-functional-modules-p0)
 15. [Minor Features & Operational Enhancements (P1)](#15-minor-features--operational-enhancements-p1)
-16. [End-to-End Business Workflows](#16-end-to-end-business-workflows)
+16: [End-to-End Business Workflows](#16-end-to-end-business-workflows)
 17. [Deterministic FIFO Algorithm & Eligibility Engine](#17-deterministic-fifo-algorithm--eligibility-engine)
 18. [Stock Balance Types, Reservations & Dispatch Lifecycle](#18-stock-balance-types-reservations--dispatch-lifecycle)
 19. [Exception Handling & Separation-of-Duties Approvals](#19-exception-handling--separation-of-duties-approvals)
@@ -50,11 +50,12 @@
 ## 1. Project Title and Version
 
 ### 1.1 Project Identifier
-- **Official Title:** SmartStock iPDS
-- **Expanded Formal Name:** Smart Commodity Stock Allocation and FIFO Management System for the Public Distribution System
+- **Official Title:** BhandarSetu (भंडारसेतु)
+- **Expanded Formal Name:** Smart Commodity Inventory & FIFO Management System
+- **Tagline:** Har batch ka hisaab, har dispatch ka record.
 - **Document Release:** Version 1.0.0-PROTOTYPE-PLAN (Phase 0 Architectural Planning Release)
 - **Target Application Profile:** Responsive Progressive Web App (PWA) with enterprise-grade authorization, local draft persistence, and transactional backend integration.
-- **Project Repository:** BhandaarSetu (Root Documentation Baseline)
+- **Project Repository:** BhandarSetu (Root Documentation Baseline)
 
 ---
 
@@ -66,9 +67,9 @@ The Public Distribution System (PDS) in India constitutes one of the largest foo
 Under conventional manual or semi-digitalized warehouse operations, warehouse floor staff frequently dispatch stock based on physical accessibility rather than chronological arrival. Bags placed near godown bay doors during recent inward deliveries are unloaded first ("Last In, First Out by physical convenience"). Older grain stored deeper in godown stacks remains untouched, exceeding safe storage windows and resulting in weevil infestation, moisture absorption, nutritional degradation, and eventual condemnation as unfit for human consumption. Concurrently, manual stock registers suffer from clerical rounding errors, untraced stock adjustments, lack of batch-level pedigree, and vulnerable dispatch workflows susceptible to diversion.
 
 ### 2.2 The Proposed Solution
-**SmartStock iPDS** is a modern, responsive, offline-resilient Progressive Web App designed specifically for intermediate warehouse operators, godown managers, quality inspectors, district supply officers, and department leadership. The platform digitizes stock receipt, enforces automated quality clearance workflows, calculates deterministic First-In, First-Out (FIFO) multi-batch allocations, generates tamper-evident digital Delivery Challans, and maintains an immutable double-entry stock movement ledger. 
+**BhandarSetu** is a modern, responsive, offline-resilient Progressive Web App designed specifically for intermediate warehouse operators, godown managers, quality inspectors, district supply officers, and department leadership. The platform digitizes stock receipt, enforces automated quality clearance workflows, calculates deterministic First-In, First-Out (FIFO) multi-batch allocations, generates tamper-evident digital Delivery Challans, and maintains an immutable double-entry stock movement ledger. 
 
-Crucially, SmartStock iPDS provides strict **Four-Eyes Separation of Duties** for approvals and formalizes **FIFO Exceptions**—ensuring that if an older eligible batch must be bypassed due to physical stack obstruction or localized handling constraints, a mandatory justification is captured, logged, and escalated for independent administrative clearance.
+Crucially, BhandarSetu provides strict **Four-Eyes Separation of Duties** for approvals and formalizes **FIFO Exceptions**—ensuring that if an older eligible batch must be bypassed due to physical stack obstruction or localized handling constraints, a mandatory justification is captured, logged, and escalated for independent administrative clearance.
 
 ```
        [ Staggered Commodity Inward ]
@@ -107,7 +108,7 @@ Crucially, SmartStock iPDS provides strict **Four-Eyes Separation of Duties** fo
 ```
 
 ### 2.3 Strict Cost and Zero-Budget Prototype Feasibility
-To ensure complete accessibility for hackathon demonstration, civic innovation, and academic peer review, SmartStock iPDS is architected to run **100% on free-tier development and hosting platforms**:
+To ensure complete accessibility for hackathon demonstration, civic innovation, and academic peer review, BhandarSetu is architected to run **100% on free-tier development and hosting platforms**:
 - **Frontend & App Shell:** React + TypeScript + Vite + Tailwind CSS, hosted on Vercel or Netlify free tiers.
 - **Database & Authentication:** PostgreSQL managed via Supabase Free Tier, leveraging native Row Level Security (RLS) and built-in GoTrue authentication.
 - **Offline Operations:** Service Workers and browser IndexedDB via standard W3C APIs (zero paid offline synchronization licenses).
@@ -146,7 +147,7 @@ Without automated, tamper-resistant digital tracking, five critical systemic fai
 5. **Vulnerable Delivery Challans:** Paper delivery challans lack cryptographic verification, enabling fraudulent duplicate deliveries, altered truck registration numbers, or diverted consignments.
 
 ### 3.3 Proposed Business Solution & Measurable Benefits
-SmartStock iPDS introduces an end-to-end digital control framework:
+BhandarSetu introduces an end-to-end digital control framework:
 - **Deterministic Batch-Wise FIFO Engine:** Automatically splits demand orders across oldest eligible batches with sub-millisecond execution.
 - **Hard Quality Gating:** Held or rejected batches cannot be selected by the allocation engine under any standard dispatch configuration.
 - **Append-Only Movement Ledger:** Physical stock balances are never updated directly via UI field edits; every balance change requires an immutable debit or credit ledger movement.
@@ -182,7 +183,7 @@ To ground the software in realistic public-sector supply-chain contexts, the pla
   - FCI is actively phasing out its legacy **Depot Online System (DOS)**, replacing it with **ANNA DARPAN** (contract awarded to M/s Coforge Limited in June 2024).
   - ANNA DARPAN is designed as a cloud-hosted, microservices-based, mobile-first logistics and depot management platform covering procurement centers, railheads, depots, and storage silos.
   - Modernization initiatives also include **Anna Chakra** (route and supply-chain optimization developed with IIT Delhi and the UN World Food Programme) and IP-based CCTV warehouse surveillance.
-- **Research Constraint Recorded:** ANNA DARPAN is an internal, secure, enterprise government platform. There are no public API endpoints, open sandboxes, or published developer documentation. SmartStock iPDS must therefore be built as an **independently functional, self-contained warehouse management system** that exposes standard CSV and REST adapter boundaries rather than attempting unauthorized direct integration with FCI infrastructure.
+- **Research Constraint Recorded:** ANNA DARPAN is an internal, secure, enterprise government platform. There are no public API endpoints, open sandboxes, or published developer documentation. BhandarSetu must therefore be built as an **independently functional, self-contained warehouse management system** that exposes standard CSV and REST adapter boundaries rather than attempting unauthorized direct integration with FCI infrastructure.
 
 ### 4.3 State NFSA Portals (e.g., NFSA Haryana)
 - **Source:** [NFSA State Portal Haryana](https://www.nfsa.gov.in/State/HR) *(Inspected October 2026)*
@@ -219,7 +220,7 @@ To ground the software in realistic public-sector supply-chain contexts, the pla
 ### 4.7 Digital Personal Data Protection (DPDP) Rules, 2025
 - **Source:** [Ministry of Electronics & Information Technology (MeitY) DPDP Guidelines](https://www.meity.gov.in)
 - **Privacy & Compliance Tenets Adopted:**
-  - **Data Minimization:** SmartStock iPDS is strictly an *intermediate warehouse inventory system*. It intentionally **does not collect, process, or store beneficiary Aadhaar numbers, ration card numbers, biometric templates, or family demographics**.
+  - **Data Minimization:** BhandarSetu is strictly an *intermediate warehouse inventory system*. It intentionally **does not collect, process, or store beneficiary Aadhaar numbers, ration card numbers, biometric templates, or family demographics**.
   - Internal staff personal data is limited to operational necessities: Full Name, Official Government Email, Phone Number (for account recovery), Designation, and Assigned Jurisdiction.
   - Explicit consent and audit logging for all administrative data mutations.
 
@@ -234,7 +235,7 @@ To establish the gold standard for public-sector warehouse inventory software by
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        SMARTSTOCK iPDS — CORE GOALS MATRIX                             │
+│                        BHANDARSETU — CORE GOALS MATRIX                                 │
 ├─────────────────────┬──────────────────────────────────────────────────────────────────┤
 │ Goal A: Accounting │ 100% double-entry movement ledger. No arbitrary balance changes.  │
 │ Goal B: Traceability│ Batch-level tracking from inward consignment to outward challan. │
@@ -258,7 +259,7 @@ To establish the gold standard for public-sector warehouse inventory software by
 
 ## 6. Target Users and Stakeholders
 
-SmartStock iPDS serves distinct user personas across state food supply directorates, district administrative offices, warehouse facilities, and civic oversight bodies.
+BhandarSetu serves distinct user personas across state food supply directorates, district administrative offices, warehouse facilities, and civic oversight bodies.
 
 ```
                       [ State Food & Supplies Dept ]
@@ -325,7 +326,7 @@ To maintain rigorous architectural discipline and ensure zero-cost prototype fea
 
 ## 8. Public and Internal Information Architecture
 
-SmartStock iPDS enforces a strict, architectural bifurcation between unauthenticated public access and authenticated internal operational workflows.
+BhandarSetu enforces a strict, architectural bifurcation between unauthenticated public access and authenticated internal operational workflows.
 
 ```
                                   [ Incoming Web Request ]
@@ -370,7 +371,7 @@ SmartStock iPDS enforces a strict, architectural bifurcation between unauthentic
 
 ## 9. Roles and Responsibilities
 
-Each role within SmartStock iPDS possesses strictly defined operational boundaries, data visibility scopes, and transactional constraints.
+Each role within BhandarSetu possesses strictly defined operational boundaries, data visibility scopes, and transactional constraints.
 
 ### 9.1 Role Specifications
 
@@ -489,7 +490,7 @@ OPERATIONAL PERMISSIONS CODING:
 
 Role-based access control (RBAC) alone is fundamentally insufficient for public administration software. A Godown Manager in Karnal must not view or manage grain inventory in Rohtak, even though both hold the same user role.
 
-SmartStock iPDS enforces a **Hierarchical Jurisdiction-Based Scope Model**:
+BhandarSetu enforces a **Hierarchical Jurisdiction-Based Scope Model**:
 
 ```
                          [ Organization / Tenant ]
@@ -739,7 +740,7 @@ The user interface is structured around operational clarity, minimal cognitive l
 - **Hard Architectural Constraint:** The FIFO allocation engine filters on `quality_status = 'ELIGIBLE'`. Batches under hold or rejection are programmatically invisible to the standard dispatch engine.
 
 ### Module F: Deterministic FIFO Allocation Engine
-- The core algorithmic brain of SmartStock iPDS.
+- The core algorithmic brain of BhandarSetu.
 - Ingests demand order (Commodity, Quantity, Godown).
 - Queries all batches satisfying: `commodity_id = target AND godown_id = target AND quality_status = 'ELIGIBLE' AND available_quantity > 0`.
 - Deterministically sorts candidate batches by `receipt_date ASC, created_at ASC, id ASC`.
@@ -941,7 +942,7 @@ A Fair Price Shop issues an allocation lifting order for **1,500 kg of Non-Basma
 ## 18. Stock Balance Types, Reservations & Dispatch Lifecycle
 
 ### 18.1 Authoritative Stock Balance Definitions
-To prevent inventory ambiguity, SmartStock iPDS formalizes five distinct stock states:
+To prevent inventory ambiguity, BhandarSetu formalizes five distinct stock states:
 
 ```
   ┌────────────────────────────────────────────────────────┐
@@ -1139,7 +1140,7 @@ The database is modeled as an enterprise relational schema deployed on PostgreSQ
 ### 21.1 Concurrency Control & Race Condition Mitigation
 In high-volume godowns, multiple dispatch operators may attempt to allocate stock simultaneously. Without rigorous concurrency controls, two competing transactions could allocate the exact same batch balance, resulting in overselling and negative inventory.
 
-SmartStock iPDS enforces a **Pessimistic Row-Locking Strategy** within an atomic PostgreSQL transaction:
+BhandarSetu enforces a **Pessimistic Row-Locking Strategy** within an atomic PostgreSQL transaction:
 
 ```sql
 -- Architectural Reference Pattern: Concurrency-Safe FIFO Allocation
@@ -1181,11 +1182,11 @@ Network retries by mobile operators working on spotty connections can cause dupl
 
 ## 22. Integration Strategy & External System Boundaries
 
-To preserve strict independence and zero-budget prototype feasibility, SmartStock iPDS operates on a **Decoupled Architecture with Clean Integration Boundaries**.
+To preserve strict independence and zero-budget prototype feasibility, BhandarSetu operates on a **Decoupled Architecture with Clean Integration Boundaries**.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                      SMARTSTOCK iPDS INTEGRATION BOUNDARY                              │
+│                      BHANDARSETU INTEGRATION BOUNDARY                                  │
 │                                                                                        │
 │  [ Core System ] ◄─── (Adapter Interface) ◄─── Validated CSV File Ingestion            │
 │  Independent DB       ├── Inward Manifests     (Offline / Spreadsheet Batch Exchange)  │
@@ -1211,7 +1212,7 @@ For realistic administrative data exchange, the platform provides formal CSV imp
 
 ## 23. Progressive Web App (PWA) & Offline Synchronization
 
-Warehouse environments are notorious for RF-shielding concrete walls and corrugated metal roofs that create connectivity blackspots. SmartStock iPDS implements a **Conservative Offline-First Design**.
+Warehouse environments are notorious for RF-shielding concrete walls and corrugated metal roofs that create connectivity blackspots. BhandarSetu implements a **Conservative Offline-First Design**.
 
 ```
                                 [ Browser PWA Layer ]
@@ -1266,7 +1267,7 @@ Warehouse environments are notorious for RF-shielding concrete walls and corruga
 
 ```
 ┌──────────────────────────┬──────────────────────────────────────────┬──────────────────────────────────────────────┐
-│ STRIDE Threat Category   │ Warehouse Domain Risk Scenario           │ SmartStock iPDS Mitigation Architecture      │
+│ STRIDE Threat Category   │ Warehouse Domain Risk Scenario           │ BhandarSetu Mitigation Architecture      │
 ├──────────────────────────┼──────────────────────────────────────────┼──────────────────────────────────────────────┤
 │ Spoofing Identity        │ Laborer impersonating Godown Manager     │ Supabase Auth JWTs, HttpOnly session cookies,│
 │                          │ to authorize fraudulent dispatch         │ invitation-only onboarding (No self-signup). │
@@ -1338,7 +1339,7 @@ Notifications alert operators to critical operational conditions without requiri
 ## 26. UI/UX Design System, Accessibility & Localization
 
 ### 26.1 Visual Aesthetics & Design System
-SmartStock iPDS rejects generic, unstyled interfaces in favor of a modern, authoritative, and trustworthy enterprise aesthetic:
+BhandarSetu rejects generic, unstyled interfaces in favor of a modern, authoritative, and trustworthy enterprise aesthetic:
 - **Typography:** Primary interface font is **Inter** (clean, highly legible geometric sans-serif); tabular numerical data utilizes tabular lining numerals (`font-variant-numeric: tabular-nums`) to ensure vertical alignment of decimal weights.
 - **Color Palette:**
   - *Primary Authority:* Deep Navy / Slate (`#0F172A` / `#1E293B`) conveying institutional stability.
@@ -1395,7 +1396,7 @@ SmartStock iPDS rejects generic, unstyled interfaces in favor of a modern, autho
 
 ```
 ┌──────────────────────┬──────────────────────────────┬──────────────────────────────────────────────┐
-│ Platform Service     │ Free-Tier Quota Limit        │ SmartStock iPDS Operational Mitigation       │
+│ Platform Service     │ Free-Tier Quota Limit        │ BhandarSetu Operational Mitigation       │
 ├──────────────────────┼──────────────────────────────┼──────────────────────────────────────────────┤
 │ Supabase Database    │ 500 MB relational storage    │ Normalized schema uses compact integer/UUID  │
 │                      │                              │ types. 500 MB accommodates > 250,000 ledger  │
@@ -1583,7 +1584,7 @@ To guarantee a compelling, realistic, and completely repeatable demonstration du
 │       │ Boundary             │ citizens see only pre-aggregated, published snapshots.  │
 │       │                      │ Demonstrate that internal tables reject anon queries.   │
 ├───────┼──────────────────────┼─────────────────────────────────────────────────────────┤
-│ 01:30 │ Role-Based Login &   │ Log in as 'karnal.manager@smartstock.gov.in'.           │
+│ 01:30 │ Role-Based Login &   │ Log in as 'karnal.manager@bhandarsetu.internal'.        │
 │       │ Scoped Dashboard     │ Highlight dynamic godown dashboard: live stock gauges,  │
 │       │                      │ batch ageing alert badges, and zero cross-district leaks│
 ├───────┼──────────────────────┼─────────────────────────────────────────────────────────┤
@@ -1597,7 +1598,7 @@ To guarantee a compelling, realistic, and completely repeatable demonstration du
 │       │ & Justification      │ BATCH-WH-001 due to "Stack Access Obstruction". Show    │
 │       │                      │ mandatory photo upload, justification, and approval log.│
 ├───────┼──────────────────────┼─────────────────────────────────────────────────────────┤
-│ 06:30 │ Four-Eyes Approval & │ Log out. Log in as 'dso.karnal@smartstock.gov.in'.      │
+│ 06:30 │ Four-Eyes Approval & │ Log out. Log in as 'dso.karnal@bhandarsetu.internal'.   │
 │       │ Delivery Challan     │ Review and approve the dispatch request. Return to      │
 │       │                      │ manager view and print the official Delivery Challan    │
 │       │                      │ showing verification QR code and SHA-256 hash digest.   │

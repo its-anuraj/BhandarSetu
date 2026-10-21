@@ -21,11 +21,11 @@ export const Sidebar: React.FC = () => {
         <div className="p-space-md border-b border-outline-variant bg-surface-container-lowest">
           <div className="flex items-center gap-space-sm mb-space-xs">
             <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-headline-sm text-headline-sm font-bold shadow-sm">
-              अ
+              भ
             </div>
             <div>
-              <div className="font-title text-title text-primary tracking-tight leading-none">AnajBahi</div>
-              <div className="font-label-sm text-label-sm text-on-surface-variant font-medium">अनाज बही • v2.4 Ent</div>
+              <div className="font-title text-title text-primary tracking-tight leading-none">BhandarSetu</div>
+              <div className="font-label-sm text-label-sm text-on-surface-variant font-medium">भंडारसेतु • v2.4 Ent</div>
             </div>
           </div>
           <div className="mt-space-sm p-space-xs bg-surface-container border border-outline-variant rounded">

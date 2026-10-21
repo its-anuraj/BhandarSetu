@@ -42,7 +42,7 @@ export const QualityInspectionView: React.FC = () => {
   const handleApproveInwardConsignment = (inwardId: string) => {
     const success = storage.postInwardToLedger(inwardId, currentUser);
     if (success) {
-      showToast(`Consignment ${inwardId} cleared QC and posted to Godown Bahi Ledger! Inventory credited.`, 'success');
+      showToast(`Consignment ${inwardId} cleared QC and posted to Godown Stock Ledger! Inventory credited.`, 'success');
       refreshData();
     }
   };
@@ -103,7 +103,7 @@ export const QualityInspectionView: React.FC = () => {
                     onClick={() => handleApproveInwardConsignment(inw.id)}
                     className="px-3 py-1.5 rounded bg-primary text-on-primary font-semibold hover:bg-primary-container transition-colors shadow-sm"
                   >
-                    Clear QC &amp; Post to Bahi Ledger
+                    Clear QC &amp; Post to Stock Ledger
                   </button>
                 </div>
               </div>

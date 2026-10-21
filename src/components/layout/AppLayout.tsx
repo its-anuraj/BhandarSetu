@@ -73,7 +73,7 @@ export const AppLayout: React.FC = () => {
           />
           <div className="relative w-72 max-w-[85vw] bg-surface-container-low h-full shadow-2xl flex flex-col z-50">
             <div className="p-3 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between">
-              <span className="font-bold text-xs uppercase tracking-wider text-primary">AnajBahi Operations</span>
+              <span className="font-bold text-xs uppercase tracking-wider text-primary">BhandarSetu Operations</span>
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-1 rounded text-on-surface-variant hover:text-on-surface"

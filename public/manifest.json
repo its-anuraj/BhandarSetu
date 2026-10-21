@@ -1,6 +1,7 @@
 {
-  "short_name": "AnajBahi",
-  "name": "AnajBahi — अनाज बही | Smart Commodity Inventory & FIFO Management",
+  "short_name": "BhandarSetu",
+  "name": "BhandarSetu — भंडारसेतु | Smart Commodity Inventory & FIFO Management",
+  "description": "Smart Commodity Inventory & FIFO Management System. Har batch ka hisaab, har dispatch ka record.",
   "icons": [
     {
       "src": "/favicon.svg",

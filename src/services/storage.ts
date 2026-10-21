@@ -56,7 +56,7 @@ export const COMMODITIES: Commodity[] = [
 export const INITIAL_USER: UserProfile = {
   id: 'USR-DL-4491',
   name: 'R. Sharma',
-  email: 'r.sharma@anajbahi.gov.in',
+  email: 'r.sharma@bhandarsetu.internal',
   badge_no: 'DL-FCS-4491',
   role: 'GODOWN_MANAGER',
   godown_id: 'WH-DEL-04',
@@ -543,7 +543,7 @@ const SEED_CHALLANS: DeliveryChallan[] = [
       },
     ],
     sha256_hash: '8f4c82b79a29e414c11867e0e7a18bb7a2d67784ec8101490212f45ea011b02b',
-    verification_qr_text: 'https://anajbahi.gov.in/verify/CH-2026-8821?hash=8f4c82b7',
+    verification_qr_text: 'https://verify.bhandarsetu.internal/verify/CH-2026-8821?hash=8f4c82b7',
     status: 'DISPATCHED',
     issued_by: 'R. Sharma (DL-FCS-4491)',
     dispatched_at: '2026-10-21T10:45:00Z',
@@ -589,22 +589,54 @@ const safeStorage = {
 const localStorage = safeStorage;
 
 class StorageService {
-  private batchesKey = 'anajbahi_batches_v1';
-  private movementsKey = 'anajbahi_movements_v1';
-  private exceptionsKey = 'anajbahi_exceptions_v1';
-  private inwardsKey = 'anajbahi_inwards_v1';
-  private dispatchesKey = 'anajbahi_dispatches_v1';
-  private challansKey = 'anajbahi_challans_v1';
-  private currentUserKey = 'anajbahi_user_v1';
+  private batchesKey = 'bhandarsetu_batches_v1';
+  private movementsKey = 'bhandarsetu_movements_v1';
+  private exceptionsKey = 'bhandarsetu_exceptions_v1';
+  private inwardsKey = 'bhandarsetu_inwards_v1';
+  private dispatchesKey = 'bhandarsetu_dispatches_v1';
+  private challansKey = 'bhandarsetu_challans_v1';
+  private currentUserKey = 'bhandarsetu_user_v1';
+
+  // Legacy keys for backward-compatible migration
+  private legacyBatchesKey = 'anajbahi_batches_v1';
+  private legacyMovementsKey = 'anajbahi_movements_v1';
+  private legacyExceptionsKey = 'anajbahi_exceptions_v1';
+  private legacyInwardsKey = 'anajbahi_inwards_v1';
+  private legacyDispatchesKey = 'anajbahi_dispatches_v1';
+  private legacyChallansKey = 'anajbahi_challans_v1';
+  private legacyCurrentUserKey = 'anajbahi_user_v1';
 
   constructor() {
     this.init();
   }
 
   private init() {
+    this.migrateLegacyStorage();
     if (!localStorage.getItem(this.batchesKey)) {
       this.resetToSeedData();
     }
+  }
+
+  private migrateLegacyStorage() {
+    try {
+      const keyMap: [string, string][] = [
+        [this.legacyBatchesKey, this.batchesKey],
+        [this.legacyMovementsKey, this.movementsKey],
+        [this.legacyExceptionsKey, this.exceptionsKey],
+        [this.legacyInwardsKey, this.inwardsKey],
+        [this.legacyDispatchesKey, this.dispatchesKey],
+        [this.legacyChallansKey, this.challansKey],
+        [this.legacyCurrentUserKey, this.currentUserKey],
+      ];
+      for (const [oldKey, newKey] of keyMap) {
+        if (!localStorage.getItem(newKey) && localStorage.getItem(oldKey)) {
+          const oldVal = localStorage.getItem(oldKey);
+          if (oldVal) {
+            localStorage.setItem(newKey, oldVal);
+          }
+        }
+      }
+    } catch {}
   }
 
   public resetToSeedData() {
@@ -902,7 +934,7 @@ class StorageService {
           bags: Math.round(a.fifo_draw_qtl * 2),
         })),
       sha256_hash: `8f4c82b79a29e414c11867e0e7a18bb7${Math.floor(1000 + Math.random() * 9000)}b02b`,
-      verification_qr_text: `https://anajbahi.gov.in/verify/${challanNo}?sec=sha256`,
+      verification_qr_text: `https://verify.bhandarsetu.internal/verify/${challanNo}?sec=sha256`,
       status: 'APPROVED',
       issued_by: `${issuedByUser.name} (${issuedByUser.badge_no})`,
     };

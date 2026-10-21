@@ -37,7 +37,7 @@ Designed to enforce **Departmental FIFO Rule 14-B** and **NFSA Section 12(2)**, 
    - Operator FIFO Exception toggle triggering statutory audit warnings and dual-sign-off workflows.
 
 4. **Stock Inward & Consignment Intake**
-   - 4-stage gate workflow: Consignment & Truck Details → Moisture & Sampling → Weighbridge & Stacking → Bahi Ledger Posting.
+   - 4-stage gate workflow: Consignment & Truck Details → Moisture & Sampling → Weighbridge & Stacking → Stock Ledger Posting.
    - Electronic weighbridge gross/tare/net weighment reconciliation with transit variance tolerance monitoring (≤0.5%).
    - Shed 04 intake bay matrix and sampling protocol acknowledgment.
    - Offline draft caching in local IndexedDB with background re-sync on reconnection.

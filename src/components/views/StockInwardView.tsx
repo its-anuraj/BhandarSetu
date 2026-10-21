@@ -228,7 +228,7 @@ export const StockInwardView: React.FC = () => {
                 04
               </div>
               <div className="min-w-0">
-                <div className="font-title text-title text-outline truncate font-semibold">Bahi Ledger Posting</div>
+                <div className="font-title text-title text-outline truncate font-semibold">Stock Ledger Posting</div>
                 <p className="font-label-sm text-label-sm text-outline truncate">Final PDS inventory credit</p>
                 <span className="inline-block mt-1 font-label-sm text-label-sm text-outline font-medium">Locked Until Approval</span>
               </div>
