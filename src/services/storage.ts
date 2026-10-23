@@ -9,6 +9,8 @@ import {
   Commodity,
   UserProfile,
 } from '../types';
+import { rbac, AuthorizationError } from './rbacService';
+import { authService } from './authService';
 
 export const COMMODITIES: Commodity[] = [
   {
@@ -651,6 +653,8 @@ class StorageService {
 
   // --- Users & Roles ---
   public getCurrentUser(): UserProfile {
+    const authUser = authService.getCurrentUser();
+    if (authUser) return authUser;
     try {
       const data = localStorage.getItem(this.currentUserKey);
       return data ? JSON.parse(data) : INITIAL_USER;
@@ -685,11 +689,16 @@ class StorageService {
     batchId: string,
     newStatus: QualityStatus,
     reason?: string,
-    inspectorName?: string
+    inspectorName?: string,
+    actorUser?: UserProfile
   ): boolean {
     const batches = this.getBatches();
     const batch = batches.find((b) => b.id === batchId);
     if (!batch) return false;
+
+    if (actorUser) {
+      rbac.assertPermission(actorUser, 'MANAGE_QUALITY_HOLD', { godownId: batch.godown_id });
+    }
 
     const oldStatus = batch.quality_status;
     batch.quality_status = newStatus;
@@ -710,7 +719,7 @@ class StorageService {
       credit_qtl: 0,
       resulting_balance_qtl: batch.on_hand_qtl,
       reference_id: `#QC-STAT-${batch.id}`,
-      actor_name: inspectorName || 'Inspector Verma (QC Lab)',
+      actor_name: inspectorName || actorUser?.name || 'Inspector Verma (QC Lab)',
       notes: `Batch ${batch.id} transitioned from ${oldStatus} to ${newStatus}. ${reason || ''}`,
     });
 
@@ -746,6 +755,11 @@ class StorageService {
    * Finalizes inward receipt and credits inventory to stock batches + appends to stock movements ledger.
    */
   public postInwardToLedger(inwardId: string, postedByUser: UserProfile): boolean {
+    rbac.assertPermission(postedByUser, 'POST_INWARD_LEDGER', {
+      godownId: postedByUser.godown_id,
+      stateCode: postedByUser.state_code,
+    });
+
     const inwards = this.getInwards();
     const inward = inwards.find((i) => i.id === inwardId);
     if (!inward || inward.status === 'POSTED_TO_LEDGER') return false;
@@ -848,6 +862,11 @@ class StorageService {
       return false;
     }
 
+    rbac.assertPermission(approverUser, 'APPROVE_DISPATCH_REQUISITION', {
+      godownId: approverUser.godown_id,
+      createdBy: dispatch.exception_operator,
+    });
+
     dispatch.status = 'APPROVED';
     dispatch.approved_by = `${approverUser.name} (${approverUser.badge_no})`;
     dispatch.approved_at = new Date().toISOString();
@@ -902,6 +921,10 @@ class StorageService {
    * Generates a formal Delivery Challan from an approved dispatch requisition.
    */
   public generateChallan(dispatchId: string, issuedByUser: UserProfile): DeliveryChallan | null {
+    rbac.assertPermission(issuedByUser, 'GENERATE_CHALLAN', {
+      godownId: issuedByUser.godown_id,
+    });
+
     const dispatch = this.getDispatchById(dispatchId);
     if (!dispatch) return null;
 
@@ -948,18 +971,38 @@ class StorageService {
 
   /**
    * Confirms truck gate exit:
-   * 1. Physically deducts stock from on_hand_qtl
-   * 2. Clears reserved_qtl
-   * 3. Appends immutable debit ledger entries to stock movements
-   * 4. Updates dispatch and challan statuses to DISPATCHED
+   * 1. Checks RBAC authority for CONFIRM_GATE_DISPATCH
+   * 2. Rejects if any allocated batch is under QUALITY_HOLD or REJECTED
+   * 3. Physically deducts stock from on_hand_qtl
+   * 4. Clears reserved_qtl
+   * 5. Appends immutable debit ledger entries to stock movements
+   * 6. Updates dispatch and challan statuses to DISPATCHED
    */
   public confirmGateDispatch(challanNo: string, gateOfficerUser: UserProfile): boolean {
+    rbac.assertPermission(gateOfficerUser, 'CONFIRM_GATE_DISPATCH', {
+      godownId: gateOfficerUser.godown_id,
+    });
+
     const challans = this.getChallans();
     const challan = challans.find((c) => c.challan_no === challanNo);
     if (!challan || challan.status === 'DISPATCHED') return false;
 
     const dispatch = this.getDispatchById(challan.dispatch_id);
     if (!dispatch) return false;
+
+    const batches = this.getBatches();
+
+    // Verify quality hold integrity: Quality-held or rejected batches cannot be dispatched
+    for (const alloc of dispatch.allocations) {
+      if (!alloc.is_bypassed && alloc.fifo_draw_qtl > 0) {
+        const batch = batches.find((b) => b.id === alloc.batch_id);
+        if (batch && (batch.quality_status === 'QUALITY_HOLD' || batch.quality_status === 'REJECTED')) {
+          throw new AuthorizationError(
+            `Statutory Violation: Batch ${batch.id} is under ${batch.quality_status} and cannot be dispatched.`
+          );
+        }
+      }
+    }
 
     challan.status = 'DISPATCHED';
     challan.dispatched_at = new Date().toISOString();
@@ -970,7 +1013,6 @@ class StorageService {
     this.saveDispatch(dispatch);
 
     // Deduct physical inventory atomically
-    const batches = this.getBatches();
     for (const alloc of dispatch.allocations) {
       if (!alloc.is_bypassed && alloc.fifo_draw_qtl > 0) {
         const batch = batches.find((b) => b.id === alloc.batch_id);
@@ -1057,6 +1099,10 @@ class StorageService {
     const exc = list.find((e) => e.id === exceptionId);
     if (!exc) return false;
 
+    rbac.assertPermission(reviewerUser, 'APPROVE_FIFO_EXCEPTION', {
+      createdBy: exc.requested_by,
+    });
+
     exc.status = 'AUTHORIZED';
     exc.reviewed_by = `${reviewerUser.name} (${reviewerUser.badge_no})`;
     exc.reviewed_at = new Date().toISOString();
@@ -1068,6 +1114,10 @@ class StorageService {
     const list = this.getExceptions();
     const exc = list.find((e) => e.id === exceptionId);
     if (!exc) return false;
+
+    rbac.assertPermission(reviewerUser, 'REJECT_FIFO_EXCEPTION', {
+      createdBy: exc.requested_by,
+    });
 
     exc.status = 'REJECTED';
     exc.reviewed_by = `${reviewerUser.name} (${reviewerUser.badge_no})`;
@@ -1087,6 +1137,11 @@ class StorageService {
     const batches = this.getBatches();
     const batch = batches.find((b) => b.id === batchId);
     if (!batch) return false;
+
+    rbac.assertPermission(actorUser, 'ADJUST_STOCK', {
+      godownId: batch.godown_id,
+      stateCode: actorUser.state_code,
+    });
 
     batch.on_hand_qtl = Math.max(0, batch.on_hand_qtl + adjustmentQtl);
     this.saveBatches(batches);

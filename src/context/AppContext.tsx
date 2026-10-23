@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   UserProfile,
   UserRole,
@@ -8,8 +8,12 @@ import {
   FPSDispatchRequisition,
   DeliveryChallan,
   FIFOExceptionRecord,
+  AuthSession,
+  PermissionAction,
 } from '../types';
 import { storage } from '../services/storage';
+import { authService } from '../services/authService';
+import { rbac, AuthorizationContext } from '../services/rbacService';
 
 export type NavPath =
   | 'dashboard'
@@ -22,6 +26,7 @@ export type NavPath =
   | 'stock-movement-ledger'
   | 'reports-and-register'
   | 'audit-trail'
+  | 'users'
   | 'settings';
 
 interface ToastInfo {
@@ -30,9 +35,21 @@ interface ToastInfo {
   type: 'success' | 'warning' | 'error' | 'info';
 }
 
-interface AppContextType {
+export interface AppContextType {
   currentUser: UserProfile;
+  session: AuthSession | null;
+  isAuthenticated: boolean;
+  isAuthLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; message: string }>;
+  changePassword: (currentPass: string, newPass: string) => Promise<void>;
+  updateProfile: (updates: { name?: string; phone?: string; avatar_url?: string }) => void;
+  // Disallowed fake role switcher: kept with alert to prevent runtime breakage if referenced
   setCurrentRole: (role: UserRole) => void;
+  canAccess: (route: string) => boolean;
+  canDo: (action: PermissionAction, ctx?: AuthorizationContext) => { allowed: boolean; reason?: string };
+
   activePath: NavPath;
   setActivePath: (path: NavPath) => void;
   searchQuery: string;
@@ -57,10 +74,31 @@ interface AppContextType {
   setActiveChallanToPrint: (c: DeliveryChallan | null) => void;
 }
 
+const defaultFallbackUser: UserProfile = {
+  id: 'USR-DL-4491',
+  name: 'R. Sharma',
+  email: 'manager@bhandarsetu.internal',
+  badge_no: 'DL-FCS-4491',
+  role: 'GODOWN_MANAGER',
+  organization_id: 'ORG-DELHI-FCS',
+  godown_id: 'WH-DEL-04',
+  godown_name: 'Central Grain Store — Demo',
+  district_id: 'DL-NW',
+  district_name: 'North West Division',
+  state_code: 'DL',
+  assigned_godown_ids: ['WH-DEL-04'],
+  is_active: true,
+};
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUserState] = useState<UserProfile>(storage.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<UserProfile>(
+    () => authService.getCurrentUser() || defaultFallbackUser
+  );
+  const [session, setSession] = useState<AuthSession | null>(() => authService.getSession());
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+
   const [activePath, setActivePath] = useState<NavPath>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [isOnline, setIsOnline] = useState(true);
@@ -77,53 +115,100 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [toast, setToast] = useState<ToastInfo | null>(null);
 
-  const refreshData = () => {
+  const showToast = useCallback((message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info') => {
+    const id = Date.now().toString();
+    setToast({ id, message, type });
+    setTimeout(() => {
+      setToast((current) => (current?.id === id ? null : current));
+    }, 4000);
+  }, []);
+
+  const hideToast = () => setToast(null);
+
+  const refreshData = useCallback(() => {
     setBatches(storage.getBatches());
     setMovements(storage.getMovements());
     setInwards(storage.getInwards());
     setDispatches(storage.getDispatches());
     setChallans(storage.getChallans());
     setExceptions(storage.getExceptions());
-  };
-
-  useEffect(() => {
-    refreshData();
   }, []);
 
-  const setCurrentRole = (role: UserRole) => {
-    let roleName = 'R. Sharma';
-    let badge = 'DL-FCS-4491';
-
-    if (role === 'QUALITY_INSPECTOR') {
-      roleName = 'Inspector Verma';
-      badge = 'DL-QC-8812';
-    } else if (role === 'DISTRICT_SUPPLY_OFFICER') {
-      roleName = 'A. K. Mathur';
-      badge = 'DL-DSO-0104';
-    } else if (role === 'STOCK_INWARD_OPERATOR') {
-      roleName = 'P. Rawat';
-      badge = 'DL-OPS-3301';
-    } else if (role === 'DISPATCH_OPERATOR') {
-      roleName = 'M. Singh';
-      badge = 'DL-DISP-2219';
-    } else if (role === 'AUDITOR') {
-      roleName = 'S. Chawla';
-      badge = 'DL-AUD-9901';
-    } else if (role === 'PLATFORM_SUPER_ADMIN') {
-      roleName = 'Director Admin';
-      badge = 'HQ-ADM-0001';
+  useEffect(() => {
+    // Initial session rehydration
+    const active = authService.restoreSession();
+    if (active) {
+      setSession(active);
+      setCurrentUser(active.user);
     }
+    refreshData();
+  }, [refreshData]);
 
-    const updatedUser: UserProfile = {
-      ...currentUser,
-      role,
-      name: roleName,
-      badge_no: badge,
-    };
-    storage.setCurrentUser(updatedUser);
-    setCurrentUserState(updatedUser);
-    showToast(`Switched active persona to ${role.replace(/_/g, ' ')} (${roleName})`, 'info');
+  const login = async (email: string, pass: string) => {
+    setIsAuthLoading(true);
+    try {
+      const user = await authService.signIn(email, pass);
+      const newSession = authService.getSession();
+      setCurrentUser(user);
+      setSession(newSession);
+      storage.setCurrentUser(user);
+      refreshData();
+      showToast(`Welcome, ${user.name} (${user.role.replace(/_/g, ' ')})`, 'success');
+    } finally {
+      setIsAuthLoading(false);
+    }
   };
+
+  const logout = async () => {
+    setIsAuthLoading(true);
+    try {
+      await authService.signOut();
+      setCurrentUser(defaultFallbackUser);
+      setSession(null);
+      setActivePath('dashboard');
+      showToast('You have been securely signed out.', 'info');
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+  const requestPasswordReset = async (email: string) => {
+    return authService.requestPasswordReset(email);
+  };
+
+  const changePassword = async (currentPass: string, newPass: string) => {
+    await authService.changePassword(currentPass, newPass);
+  };
+
+  const updateProfile = (updates: { name?: string; phone?: string; avatar_url?: string }) => {
+    if (!currentUser) return;
+    const updated = authService.updateProfile(currentUser, updates);
+    setCurrentUser(updated);
+  };
+
+  /**
+   * Blocked fake role switcher: warns that role elevation cannot be self-performed
+   */
+  const setCurrentRole = (role: UserRole) => {
+    showToast(
+      `Access Denied: Self-assignment of role '${role}' is prohibited by RBAC policy. Role changes must be provisioned by an Administrator.`,
+      'error'
+    );
+  };
+
+  const canAccess = useCallback(
+    (route: string): boolean => {
+      return rbac.canAccessRoute(currentUser, route);
+    },
+    [currentUser]
+  );
+
+  const canDo = useCallback(
+    (action: PermissionAction, ctx?: AuthorizationContext) => {
+      return rbac.canPerformAction(currentUser, action, ctx);
+    },
+    [currentUser]
+  );
 
   const toggleOnlineMode = () => {
     setIsOnline((prev) => {
@@ -139,21 +224,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const showToast = (message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info') => {
-    const id = Date.now().toString();
-    setToast({ id, message, type });
-    setTimeout(() => {
-      setToast((current) => (current?.id === id ? null : current));
-    }, 4000);
-  };
-
-  const hideToast = () => setToast(null);
-
   return (
     <AppContext.Provider
       value={{
         currentUser,
+        session,
+        isAuthenticated: Boolean(currentUser && session && session.expires_at > Date.now()),
+        isAuthLoading,
+        login,
+        logout,
+        requestPasswordReset,
+        changePassword,
+        updateProfile,
         setCurrentRole,
+        canAccess,
+        canDo,
+
         activePath,
         setActivePath,
         searchQuery,

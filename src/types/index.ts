@@ -7,20 +7,71 @@ export type UserRole =
   | 'QUALITY_INSPECTOR'
   | 'DISPATCH_OPERATOR'
   | 'AUTHORIZED_APPROVER'
-  | 'AUDITOR';
+  | 'AUDITOR'
+  | 'FPS_RECIPIENT';
+
+export interface UserScope {
+  organization_id: string;
+  state_code: string;
+  district_id: string;
+  district_name: string;
+  godown_id: string;
+  godown_name: string;
+  assigned_godown_ids: string[];
+}
 
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   badge_no: string;
+  phone?: string;
   role: UserRole;
+  organization_id?: string;
   godown_id: string;
   godown_name: string;
+  district_id?: string;
   district_name: string;
   state_code: string;
+  assigned_godown_ids?: string[];
+  is_active?: boolean;
   avatar_url?: string;
+  created_at?: string;
+  last_login_at?: string;
 }
+
+export interface AuthSession {
+  user: UserProfile;
+  token: string;
+  expires_at: number;
+}
+
+export type PermissionAction =
+  | 'VIEW_DASHBOARD'
+  | 'VIEW_INVENTORY'
+  | 'ADJUST_STOCK'
+  | 'EXPORT_INVENTORY'
+  | 'CREATE_INWARD_DRAFT'
+  | 'EDIT_INWARD_DRAFT'
+  | 'POST_INWARD_LEDGER'
+  | 'REJECT_INWARD'
+  | 'CONDUCT_QUALITY_INSPECTION'
+  | 'MANAGE_QUALITY_HOLD'
+  | 'CREATE_DISPATCH_REQUISITION'
+  | 'APPROVE_DISPATCH_REQUISITION'
+  | 'OVERRIDE_FIFO_EXCEPTION'
+  | 'APPROVE_FIFO_EXCEPTION'
+  | 'REJECT_FIFO_EXCEPTION'
+  | 'GENERATE_CHALLAN'
+  | 'CONFIRM_GATE_DISPATCH'
+  | 'VIEW_LEDGER'
+  | 'EXPORT_LEDGER'
+  | 'VIEW_REPORTS'
+  | 'EXPORT_REPORTS'
+  | 'VIEW_AUDIT_LOGS'
+  | 'EXPORT_AUDIT_LOGS'
+  | 'MANAGE_USERS'
+  | 'SYSTEM_SETTINGS';
 
 export type QualityStatus =
   | 'ELIGIBLE'
